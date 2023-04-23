@@ -64,9 +64,9 @@ function collectPosts(data, postTypes, config) {
 					coverImageId: getPostCoverImageId(post),
 					type: postType,
 					imageUrls: [],
-					...
-					(post.status[0] === 'draft'
-						? { draft: true }
+					...(
+						post.status[0] === 'draft'
+						? { draft: "true" }
 						: {}
 					)
 				},
@@ -74,7 +74,13 @@ function collectPosts(data, postTypes, config) {
 					title: getPostTitle(post),
 					date: getPostDate(post),
 					categories: getCategories(post),
-					tags: getTags(post)
+					tags: [...new Set([...getCategories(post), ...getTags(post)])],
+
+					...(
+						(getPostDate(post) && getPostSlug(post))
+						? { aliases: [`/es/${getPostDate(post).replace(/-/g, '/')}/${getPostSlug(post)}`] }
+						: {}
+					)
 				},
 				content: translator.getPostContent(post, turndownService, config)
 			}));
