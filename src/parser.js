@@ -55,7 +55,7 @@ function collectPosts(data, postTypes, config) {
 	let allPosts = [];
 	postTypes.forEach(postType => {
 		const postsForType = getItemsOfType(data, postType)
-			.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+			.filter(post => post.status[0] !== 'trash')
 			.map(post => ({
 				// meta data isn't written to file, but is used to help with other things
 				meta: {
@@ -63,7 +63,12 @@ function collectPosts(data, postTypes, config) {
 					slug: getPostSlug(post),
 					coverImageId: getPostCoverImageId(post),
 					type: postType,
-					imageUrls: []
+					imageUrls: [],
+					...
+					(post.status[0] === 'draft'
+						? { draft: true }
+						: {}
+					)
 				},
 				frontmatter: {
 					title: getPostTitle(post),
@@ -87,12 +92,24 @@ function collectPosts(data, postTypes, config) {
 	return allPosts;
 }
 
+function generateSlug(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]/gi, '-') // Replace non-alphanumeric characters with a hyphen
+    .replace(/--+/g, '-') // Replace multiple hyphens with a single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+}
+
 function getPostId(post) {
 	return post.post_id[0];
 }
 
 function getPostSlug(post) {
-	return decodeURIComponent(post.post_name[0]);
+	let slug = decodeURIComponent(post.post_name[0]);
+	if (!slug) {
+		slug = generateSlug(getPostTitle(post))
+	}
+	return slug;
 }
 
 function getPostCoverImageId(post) {

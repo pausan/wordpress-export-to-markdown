@@ -175,6 +175,9 @@ function getPostPath(post, config) {
 		pathSegments.push(dt.toFormat('LL'));
 	}
 
+	if (post.meta.draft)
+		pathSegments.push('draft')
+
 	// create slug fragment, possibly date prefixed
 	let slugFragment = post.meta.slug;
 	if (config.prefixDate) {
